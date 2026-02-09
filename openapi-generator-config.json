@@ -1,0 +1,8 @@
+{
+  "packageName": "@post-now/api-client",
+  "packageVersion": "1.0.0",
+  "apiDocumentationUrl": "http://localhost:8090/v1/api-docs",
+  "supportsES6": true,
+  "npmVersion": "6",
+  "generateApiDocumentation": false
+}
