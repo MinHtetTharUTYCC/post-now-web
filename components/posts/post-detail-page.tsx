@@ -12,13 +12,11 @@ export function PostDetailPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-black text-white">
-                <div className="max-w-2xl mx-auto border-x border-gray-700">
-                    <div className="p-6 animate-pulse">
-                        <div className="h-8 bg-gray-700 rounded w-3/4 mb-4"></div>
-                        <div className="h-4 bg-gray-700 rounded w-full mb-2"></div>
-                        <div className="h-4 bg-gray-700 rounded w-5/6"></div>
-                    </div>
+            <div className="max-w-2xl mx-auto border-x border-gray-700 min-h-screen">
+                <div className="p-6 animate-pulse">
+                    <div className="h-8 bg-gray-700 rounded w-3/4 mb-4"></div>
+                    <div className="h-4 bg-gray-700 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-700 rounded w-5/6"></div>
                 </div>
             </div>
         );
@@ -26,24 +24,20 @@ export function PostDetailPage() {
 
     if (error || !post) {
         return (
-            <div className="min-h-screen bg-black text-white">
-                <div className="max-w-2xl mx-auto border-x border-gray-700">
-                    <div className="p-12 text-center">
-                        <h2 className="text-2xl font-bold mb-2">Post not found</h2>
-                        <p className="text-gray-400">This post may have been deleted.</p>
-                    </div>
+            <div className="max-w-2xl mx-auto border-x border-gray-700 min-h-screen">
+                <div className="p-12 text-center">
+                    <h2 className="text-2xl font-bold mb-2">Post not found</h2>
+                    <p className="text-gray-400">This post may have been deleted.</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-black text-white">
-            <div className="max-w-2xl mx-auto border-x border-gray-700">
-                <PostDetailHeader post={post} />
-                <PostDetailContent post={post} />
-                <CommentsList postId={postId} />
-            </div>
+        <div className="max-w-2xl mx-auto border-x border-gray-700 min-h-screen">
+            <PostDetailHeader post={post} />
+            <PostDetailContent post={post} />
+            <CommentsList postId={postId} />
         </div>
     );
 }

@@ -58,12 +58,13 @@ export function CreatePostForm() {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white">
-            <div className="max-w-2xl mx-auto border-x border-gray-700">
+        <div className="max-w-2xl mx-auto border-x border-gray-700 min-h-screen">
+            <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Header */}
                 <div className="sticky top-0 z-10 border-b border-gray-700 backdrop-blur bg-black/80 p-4 flex items-center justify-between gap-4">
                     <div className="flex items-center justify-center gap-2">
                         <button
+                            type="button"
                             onClick={() => router.back()}
                             className="hover:bg-gray-800 rounded-full p-2 transition"
                         >
@@ -80,8 +81,8 @@ export function CreatePostForm() {
                     </button>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit(onSubmit)} className="p-6">
+                {/* Form Content */}
+                <div className="p-6">
                     <div className="space-y-6">
                         <div>
                             <input
@@ -154,8 +155,8 @@ export function CreatePostForm() {
                             </div>
                         )}
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     );
 }
