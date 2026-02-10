@@ -75,7 +75,7 @@ export function CreatePostForm() {
                     <button
                         type="submit"
                         disabled={createPostMutation.isPending}
-                        className="px-8 py-2 bg-white text-black font-semibold rounded-full hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-8 py-2 bg-white text-black font-semibold hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {createPostMutation.isPending ? 'Posting...' : 'Post'}
                     </button>

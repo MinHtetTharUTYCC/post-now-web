@@ -6,6 +6,7 @@ import { Home, User, PlusSquare, Settings, LogOut, Menu, X, Bell } from 'lucide-
 import { useAuthStore } from '@/hooks/stores/use-auth-store';
 import { useLogout } from '@/hooks/mutations/use-auth';
 import { useUnreadCount } from '@/hooks/queries/use-notifications';
+import { useCurrentUser } from '@/hooks/queries/use-user';
 import { useState } from 'react';
 
 const menuItems = [
@@ -22,6 +23,7 @@ export function Sidebar() {
     const logoutMutation = useLogout();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { data: unreadData } = useUnreadCount();
+    const { data: currentUser } = useCurrentUser();
 
     const filteredMenuItems = menuItems.filter((item) => !item.auth || isAuthenticated);
     const unreadCount = unreadData?.count || 0;
@@ -72,7 +74,12 @@ export function Sidebar() {
                     <nav className="flex-1 space-y-2">
                         {filteredMenuItems.map((item) => {
                             const Icon = item.icon;
-                            const isActive = pathname === item.href;
+                            const isActive =
+                                item.href === '/profile'
+                                    ? pathname === '/profile' ||
+                                      (currentUser?.username &&
+                                          pathname === `/profile/${currentUser.username}`)
+                                    : pathname === item.href;
 
                             return (
                                 <Link

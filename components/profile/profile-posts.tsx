@@ -1,12 +1,16 @@
 'use client';
 
-import { useInfinitePosts } from '@/hooks/use-posts';
-import { PostCard } from './post-card';
+import { useInfiniteUserPosts } from '@/hooks/queries/use-user';
+import { PostCard } from '@/components/posts/post-card';
 import { useEffect, useRef } from 'react';
 
-export function PostsFeed() {
+interface ProfilePostsProps {
+    username: string;
+}
+
+export function ProfilePosts({ username }: ProfilePostsProps) {
     const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
-        useInfinitePosts(10);
+        useInfiniteUserPosts(username, 10);
 
     const loadMoreRef = useRef<HTMLDivElement>(null);
     const fetchingRef = useRef(false);
@@ -23,12 +27,10 @@ export function PostsFeed() {
                     !isFetchingNextPage &&
                     !fetchingRef.current
                 ) {
-                    console.log('🎯 Triggering fetchNextPage');
                     fetchingRef.current = true;
                     fetchNextPage().finally(() => {
                         setTimeout(() => {
                             fetchingRef.current = false;
-                            console.log('✅ Fetch completed, ready for next');
                         }, 1000);
                     });
                 }
@@ -46,12 +48,16 @@ export function PostsFeed() {
     if (isLoading) {
         return (
             <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                    <div key={i} className="border border-gray-700 p-6 animate-pulse">
-                        <div className="h-4 bg-gray-700 rounded w-1/4 mb-4"></div>
-                        <div className="h-6 bg-gray-700 rounded w-3/4 mb-3"></div>
-                        <div className="h-4 bg-gray-700 rounded w-full mb-2"></div>
-                        <div className="h-4 bg-gray-700 rounded w-5/6"></div>
+                {[1, 2, 3].map((i) => (
+                    <div key={i} className="border-b border-gray-700 p-6 animate-pulse">
+                        <div className="flex gap-3">
+                            <div className="h-12 w-12 rounded-full bg-gray-800" />
+                            <div className="flex-1 space-y-3">
+                                <div className="h-4 w-32 bg-gray-800 rounded" />
+                                <div className="h-4 w-full bg-gray-800 rounded" />
+                                <div className="h-4 w-3/4 bg-gray-800 rounded" />
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -60,46 +66,49 @@ export function PostsFeed() {
 
     if (error) {
         return (
-            <div className="p-6 border border-gray-700 text-center">
-                <p className="text-red-500">Failed to load posts</p>
+            <div className="py-12 text-center">
+                <p className="text-lg text-red-500">Failed to load posts</p>
             </div>
         );
     }
 
     const allPosts = data?.pages.flatMap((page) => page.content ?? []) ?? [];
 
-    // Deduplicate posts by ID
     const uniquePosts = allPosts.filter(
         (post, index, self) => index === self.findIndex((p) => p.id === post.id),
     );
 
     if (!isLoading && uniquePosts.length === 0) {
         return (
-            <div className="p-12 text-center border border-gray-700">
-                <p className="text-gray-400">No posts yet. Be the first to share!</p>
+            <div className="py-12 text-center text-gray-400">
+                <p className="text-lg">No posts yet</p>
+                <p className="text-sm mt-2">Posts from @{username} will appear here</p>
             </div>
         );
     }
 
     return (
         <div>
-            <div className="space-y-0 border border-gray-700 divide-y divide-gray-700">
+            <div className="divide-y divide-gray-700">
                 {uniquePosts.map((post) => (
                     <PostCard key={post.id} post={post} />
                 ))}
             </div>
 
-            {/* Infinite scroll trigger */}
             {hasNextPage && (
                 <div ref={loadMoreRef} className="py-8">
                     {isFetchingNextPage ? (
                         <div className="space-y-4">
                             {[...Array(3)].map((_, i) => (
-                                <div key={i} className="border border-gray-700 p-6 animate-pulse">
-                                    <div className="h-4 bg-gray-700 rounded w-1/4 mb-4"></div>
-                                    <div className="h-6 bg-gray-700 rounded w-3/4 mb-3"></div>
-                                    <div className="h-4 bg-gray-700 rounded w-full mb-2"></div>
-                                    <div className="h-4 bg-gray-700 rounded w-5/6"></div>
+                                <div key={i} className="border-b border-gray-700 p-6 animate-pulse">
+                                    <div className="flex gap-3">
+                                        <div className="h-12 w-12 rounded-full bg-gray-800" />
+                                        <div className="flex-1 space-y-3">
+                                            <div className="h-4 w-32 bg-gray-800 rounded" />
+                                            <div className="h-4 w-full bg-gray-800 rounded" />
+                                            <div className="h-4 w-3/4 bg-gray-800 rounded" />
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
