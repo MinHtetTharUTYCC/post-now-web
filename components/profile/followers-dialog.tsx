@@ -7,7 +7,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CustomAvatar } from '@/components/ui/custom-avatar';
 import { Button } from '@/components/ui/button';
 import { useFollowers } from '@/hooks/queries/use-user';
 import { useFollowUser, useUnfollowUser } from '@/hooks/mutations/use-follow';
@@ -100,10 +100,11 @@ function FollowerItem({ user, currentUsername }: FollowerItemProps) {
     return (
         <div className="flex items-center justify-between gap-3">
             <Link href={`/profile/${user.username}`} className="flex items-center gap-3 flex-1">
-                <Avatar>
-                    <AvatarImage src={user.profileImage} alt={user.username} />
-                    <AvatarFallback>{getInitials()}</AvatarFallback>
-                </Avatar>
+                <CustomAvatar
+                    src={user.profileImage}
+                    alt={user.username}
+                    fallback={getInitials()}
+                />
                 <div className="flex-1 min-w-0">
                     <p className="font-semibold truncate text-white">
                         {user.firstName || user.lastName

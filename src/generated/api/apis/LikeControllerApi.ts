@@ -14,6 +14,21 @@
 
 
 import * as runtime from '../runtime';
+import type {
+  PageLikeDto,
+  Pageable,
+} from '../models/index';
+import {
+    PageLikeDtoFromJSON,
+    PageLikeDtoToJSON,
+    PageableFromJSON,
+    PageableToJSON,
+} from '../models/index';
+
+export interface GetLikesByUsernameRequest {
+    username: string;
+    pageable: Pageable;
+}
 
 export interface GetLikesCountRequest {
     postId: number;
@@ -39,6 +54,52 @@ export interface UnlikePostRequest {
  * 
  */
 export class LikeControllerApi extends runtime.BaseAPI {
+
+    /**
+     */
+    async getLikesByUsernameRaw(requestParameters: GetLikesByUsernameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PageLikeDto>> {
+        if (requestParameters['username'] == null) {
+            throw new runtime.RequiredError(
+                'username',
+                'Required parameter "username" was null or undefined when calling getLikesByUsername().'
+            );
+        }
+
+        if (requestParameters['pageable'] == null) {
+            throw new runtime.RequiredError(
+                'pageable',
+                'Required parameter "pageable" was null or undefined when calling getLikesByUsername().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['pageable'] != null) {
+            queryParameters['pageable'] = requestParameters['pageable'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/likes/user/{username}`;
+        urlPath = urlPath.replace(`{${"username"}}`, encodeURIComponent(String(requestParameters['username'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PageLikeDtoFromJSON(jsonValue));
+    }
+
+    /**
+     */
+    async getLikesByUsername(requestParameters: GetLikesByUsernameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PageLikeDto> {
+        const response = await this.getLikesByUsernameRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      */

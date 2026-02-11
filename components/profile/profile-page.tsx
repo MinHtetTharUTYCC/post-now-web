@@ -3,6 +3,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProfileHeader } from './profile-header';
 import { ProfilePosts } from './profile-posts';
+import { ProfileComments } from './profile-comments';
+import { ProfileLikes } from './profile-likes';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
@@ -59,17 +61,11 @@ export function ProfilePage({ username }: ProfilePageProps) {
                 </TabsContent>
 
                 <TabsContent value="replies" className="mt-0">
-                    <div className="py-12 text-center text-gray-500">
-                        <p className="text-lg">No comments yet</p>
-                        <p className="text-sm mt-2">Comments will appear here</p>
-                    </div>
+                    <ProfileComments username={username} />
                 </TabsContent>
 
                 <TabsContent value="likes" className="mt-0">
-                    <div className="py-12 text-center text-gray-500">
-                        <p className="text-lg">No likes yet</p>
-                        <p className="text-sm mt-2">Liked posts will appear here</p>
-                    </div>
+                    <ProfileLikes username={username} />
                 </TabsContent>
             </Tabs>
         </div>

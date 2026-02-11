@@ -2,7 +2,7 @@
 
 import type { CommentDto } from '@/src/generated/api/models';
 import Link from 'next/link';
-import { Avatar } from '@/components/ui/avatar';
+import { CustomAvatar } from '@/components/ui/custom-avatar';
 
 interface CommentItemProps {
     comment: CommentDto;
@@ -13,9 +13,10 @@ export function CommentItem({ comment }: CommentItemProps) {
         <article className="p-4 border-b border-gray-700 hover:bg-gray-900/30 transition">
             <div className="flex gap-3">
                 {comment.author && (
-                    <Avatar
+                    <CustomAvatar
                         src={comment.author.profileImage}
                         alt={comment.author.username}
+                        fallback={comment.author.username?.[0]?.toUpperCase()}
                         size="sm"
                     />
                 )}

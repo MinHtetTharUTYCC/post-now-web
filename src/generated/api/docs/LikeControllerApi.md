@@ -4,12 +4,81 @@ All URIs are relative to *http://localhost:8090*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**getLikesByUsername**](LikeControllerApi.md#getlikesbyusername) | **GET** /api/likes/user/{username} |  |
 | [**getLikesCount**](LikeControllerApi.md#getlikescount) | **GET** /api/likes/post/{postId}/count |  |
 | [**isPostLikedByUser**](LikeControllerApi.md#ispostlikedbyuser) | **GET** /api/likes/post/{postId}/status |  |
 | [**likePost**](LikeControllerApi.md#likepost) | **POST** /api/likes/post/{postId} |  |
 | [**toggleLike**](LikeControllerApi.md#togglelike) | **POST** /api/likes/post/{postId}/toggle |  |
 | [**unlikePost**](LikeControllerApi.md#unlikepost) | **DELETE** /api/likes/post/{postId} |  |
 
+
+
+## getLikesByUsername
+
+> PageLikeDto getLikesByUsername(username, pageable)
+
+
+
+### Example
+
+```ts
+import {
+  Configuration,
+  LikeControllerApi,
+} from '';
+import type { GetLikesByUsernameRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const api = new LikeControllerApi();
+
+  const body = {
+    // string
+    username: username_example,
+    // Pageable
+    pageable: ...,
+  } satisfies GetLikesByUsernameRequest;
+
+  try {
+    const data = await api.getLikesByUsername(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **username** | `string` |  | [Defaults to `undefined`] |
+| **pageable** | [](.md) |  | [Defaults to `undefined`] |
+
+### Return type
+
+[**PageLikeDto**](PageLikeDto.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `*/*`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## getLikesCount

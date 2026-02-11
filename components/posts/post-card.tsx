@@ -4,7 +4,7 @@ import type { PostDto } from '@/src/generated/api/models';
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Avatar } from '@/components/ui/avatar';
+import { CustomAvatar } from '@/components/ui/custom-avatar';
 
 interface PostCardProps {
     post: PostDto;
@@ -22,9 +22,10 @@ export function PostCard({ post }: PostCardProps) {
                 <div className="flex gap-3 flex-1">
                     {post.author && (
                         <>
-                            <Avatar
+                            <CustomAvatar
                                 src={post.author.profileImage}
                                 alt={post.author.username}
+                                fallback={post.author.username?.[0]?.toUpperCase()}
                                 size="sm"
                             />
                             <div>

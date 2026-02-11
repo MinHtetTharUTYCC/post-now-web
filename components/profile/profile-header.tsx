@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CustomAvatar } from '@/components/ui/custom-avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFollowUser, useUnfollowUser } from '@/hooks/mutations/use-follow';
@@ -62,10 +62,12 @@ export function ProfileHeader({ username }: ProfileHeaderProps) {
             <div className="border-b border-gray-700 p-6 bg-black">
                 <div className="flex items-start justify-between">
                     <div className="flex gap-4">
-                        <Avatar className="h-24 w-24">
-                            <AvatarImage src={user.profileImage} alt={user.username} />
-                            <AvatarFallback className="text-2xl">{getInitials()}</AvatarFallback>
-                        </Avatar>
+                        <CustomAvatar
+                            src={user.profileImage}
+                            alt={user.username}
+                            fallback={getInitials()}
+                            className="h-24 w-24"
+                        />
                         <div className="flex-1">
                             <div className="flex items-center gap-3">
                                 <h1 className="text-2xl font-bold">

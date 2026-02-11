@@ -15,15 +15,19 @@
 
 import * as runtime from '../runtime';
 import type {
-    CreatePost1200Response,
-    PagePostDto,
-    Pageable,
-    PostCreateDto,
-    PostDto,
-    PostUpdateDto,
+  CreatePost1200Response,
+  CreatePost1Request,
+  PagePostDto,
+  Pageable,
+  PostCreateDto,
+  PostDto,
+  PostUpdateDto,
 } from '../models/index';
 import {
     CreatePost1200ResponseFromJSON,
+    CreatePost1200ResponseToJSON,
+    CreatePost1RequestFromJSON,
+    CreatePost1RequestToJSON,
     PagePostDtoFromJSON,
     PagePostDtoToJSON,
     PageableFromJSON,

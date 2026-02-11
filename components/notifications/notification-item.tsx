@@ -2,7 +2,7 @@
 
 import { NotificationDto } from '@/src/generated/api';
 import { Heart, MessageCircle, UserPlus, FileText } from 'lucide-react';
-import { Avatar } from '@/components/ui/avatar';
+import { CustomAvatar } from '@/components/ui/custom-avatar';
 import Link from 'next/link';
 import { useMarkAsRead } from '@/hooks/mutations/use-notifications';
 import { formatDistanceToNow } from 'date-fns';
@@ -58,10 +58,10 @@ export function NotificationItem({ notification }: NotificationItemProps) {
                 <div className="mt-1">{getIcon()}</div>
 
                 {/* Avatar */}
-                <Avatar
+                <CustomAvatar
                     src={notification.actor?.profileImage}
                     alt={notification.actor?.username || 'User'}
-                    size="md"
+                    fallback={notification.actor?.username?.[0]?.toUpperCase() || 'U'}
                 />
 
                 {/* Content */}

@@ -4,7 +4,7 @@ import type { PostDto } from '@/src/generated/api/models';
 import { Heart, MessageCircle, Share2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Avatar } from '@/components/ui/avatar';
+import { CustomAvatar } from '@/components/ui/custom-avatar';
 
 interface PostDetailHeaderProps {
     post: PostDto;
@@ -32,7 +32,11 @@ export function PostDetailContent({ post }: PostDetailHeaderProps) {
             {/* Author */}
             {post.author && (
                 <div className="flex items-start gap-3 mb-4">
-                    <Avatar src={post.author.profileImage} alt={post.author.username} size="md" />
+                    <CustomAvatar
+                        src={post.author.profileImage}
+                        alt={post.author.username}
+                        fallback={post.author.username?.[0]?.toUpperCase()}
+                    />
                     <Link href={`/profile/${post.author.username}`} className="flex-1">
                         <div className="font-semibold hover:underline">
                             {post.author.firstName} {post.author.lastName}

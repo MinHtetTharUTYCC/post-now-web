@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CustomAvatar } from '@/components/ui/custom-avatar';
 import {
     useUpdateProfile,
     useUploadProfileImage,
@@ -109,10 +109,12 @@ export function EditProfileDialog({ open, onOpenChange, user }: EditProfileDialo
                     <div className="space-y-4 py-4">
                         {/* Profile Image Section */}
                         <div className="flex items-center gap-4">
-                            <Avatar className="h-20 w-20">
-                                <AvatarImage src={user.profileImage} alt={user.username} />
-                                <AvatarFallback className="text-xl">{getInitials()}</AvatarFallback>
-                            </Avatar>
+                            <CustomAvatar
+                                src={user.profileImage}
+                                alt={user.username}
+                                fallback={getInitials()}
+                                className="h-20 w-20"
+                            />
                             <div className="flex gap-2">
                                 <button
                                     className="px-4 py-2 border border-gray-700 hover:bg-gray-800 font-semibold transition flex items-center gap-2"

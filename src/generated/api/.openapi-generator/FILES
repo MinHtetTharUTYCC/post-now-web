@@ -1,4 +1,3 @@
-.openapi-generator-ignore
 apis/AuthControllerApi.ts
 apis/CommentControllerApi.ts
 apis/FollowControllerApi.ts
@@ -17,10 +16,12 @@ docs/CreatePost1200Response.md
 docs/FollowControllerApi.md
 docs/HealthControllerApi.md
 docs/LikeControllerApi.md
+docs/LikeDto.md
 docs/LoginRequestDto.md
 docs/NotificationControllerApi.md
 docs/NotificationDto.md
 docs/PageCommentDto.md
+docs/PageLikeDto.md
 docs/PageNotificationDto.md
 docs/PagePostDto.md
 docs/PageUserDto.md
@@ -43,9 +44,11 @@ models/AuthResponseDto.ts
 models/CommentCreateDto.ts
 models/CommentDto.ts
 models/CreatePost1200Response.ts
+models/LikeDto.ts
 models/LoginRequestDto.ts
 models/NotificationDto.ts
 models/PageCommentDto.ts
+models/PageLikeDto.ts
 models/PageNotificationDto.ts
 models/PagePostDto.ts
 models/PageUserDto.ts
