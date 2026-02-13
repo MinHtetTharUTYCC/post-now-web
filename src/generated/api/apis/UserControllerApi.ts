@@ -17,7 +17,6 @@ import * as runtime from '../runtime';
 import type {
   PageUserDto,
   Pageable,
-  UploadProfileImageRequest,
   UserDto,
   UserUpdateDto,
 } from '../models/index';
@@ -26,8 +25,6 @@ import {
     PageUserDtoToJSON,
     PageableFromJSON,
     PageableToJSON,
-    UploadProfileImageRequestFromJSON,
-    UploadProfileImageRequestToJSON,
     UserDtoFromJSON,
     UserDtoToJSON,
     UserUpdateDtoFromJSON,
@@ -51,8 +48,8 @@ export interface UpdateCurrentUserRequest {
     userUpdateDto: UserUpdateDto;
 }
 
-export interface UploadProfileImageOperationRequest {
-    uploadProfileImageRequest?: UploadProfileImageRequest;
+export interface UploadProfileImageRequest {
+    image: Blob;
 }
 
 /**
@@ -301,12 +298,37 @@ export class UserControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async uploadProfileImageRaw(requestParameters: UploadProfileImageOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>> {
+    async uploadProfileImageRaw(requestParameters: UploadProfileImageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<object>> {
+        if (requestParameters['image'] == null) {
+            throw new runtime.RequiredError(
+                'image',
+                'Required parameter "image" was null or undefined when calling uploadProfileImage().'
+            );
+        }
+
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        headerParameters['Content-Type'] = 'application/json';
+        const consumes: runtime.Consume[] = [
+            { contentType: 'multipart/form-data' },
+        ];
+        // @ts-ignore: canConsumeForm may be unused
+        const canConsumeForm = runtime.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any };
+        let useForm = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['image'] != null) {
+            formParams.append('image', requestParameters['image'] as any);
+        }
 
 
         let urlPath = `/api/users/me/profile-image`;
@@ -316,7 +338,7 @@ export class UserControllerApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: UploadProfileImageRequestToJSON(requestParameters['uploadProfileImageRequest']),
+            body: formParams,
         }, initOverrides);
 
         return new runtime.JSONApiResponse<any>(response);
@@ -324,7 +346,7 @@ export class UserControllerApi extends runtime.BaseAPI {
 
     /**
      */
-    async uploadProfileImage(requestParameters: UploadProfileImageOperationRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
+    async uploadProfileImage(requestParameters: UploadProfileImageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<object> {
         const response = await this.uploadProfileImageRaw(requestParameters, initOverrides);
         return await response.value();
     }

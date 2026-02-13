@@ -1,10 +1,13 @@
 'use client';
 
 import type { PostDto } from '@/src/generated/api/models';
-import { Heart, MessageCircle, Share2, ArrowLeft } from 'lucide-react';
+import { Heart, MessageCircle, Share2, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CustomAvatar } from '@/components/ui/custom-avatar';
+import { useDeletePost, useToggleLike } from '@/hooks/use-post-mutations';
+import { useAuthStore } from '@/hooks/stores/use-auth-store';
+import { useCurrentUser } from '@/hooks/queries/use-user';
 
 interface PostDetailHeaderProps {
     post: PostDto;
@@ -12,6 +15,15 @@ interface PostDetailHeaderProps {
 
 export function PostDetailHeader({ post }: PostDetailHeaderProps) {
     const router = useRouter();
+    const { data: currentUser } = useCurrentUser();
+    const deletePostMutation = useDeletePost();
+    const isAuthor = !!currentUser?.username && currentUser.username === post.author?.username;
+
+    const handleDelete = () => {
+        if (!post.id) return;
+        if (!window.confirm('Delete this post? This cannot be undone.')) return;
+        deletePostMutation.mutate(post.id);
+    };
 
     return (
         <div className="sticky top-0 z-10 border-b border-gray-700 backdrop-blur bg-black/80 p-4 flex items-center gap-4">
@@ -21,12 +33,43 @@ export function PostDetailHeader({ post }: PostDetailHeaderProps) {
             >
                 <ArrowLeft size={20} />
             </button>
-            <h2 className="text-xl font-bold">Post</h2>
+            <h2 className="text-xl font-bold flex-1">Post</h2>
+
+            {isAuthor && post.id && (
+                <div className="flex items-center gap-2">
+                    <Link
+                        href={`/posts/${post.id}/edit`}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-700 hover:bg-gray-900 transition"
+                    >
+                        <Pencil size={16} />
+                        Edit
+                    </Link>
+                    <button
+                        onClick={handleDelete}
+                        disabled={deletePostMutation.isPending}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 border border-red-500 text-red-500 hover:bg-red-500/10 transition disabled:opacity-50"
+                    >
+                        <Trash2 size={16} />
+                        Delete
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
 
 export function PostDetailContent({ post }: PostDetailHeaderProps) {
+    const toggleLikeMutation = useToggleLike();
+    const isAuthenticated = useAuthStore((s: any) => s.isAuthenticated());
+
+    const handleLike = () => {
+        if (!isAuthenticated) return;
+        toggleLikeMutation.mutate({
+            postId: post.id!,
+            liked: post.likedByCurrentUser ?? false,
+        });
+    };
+
     return (
         <article className="p-6 border-b border-gray-700">
             {/* Author */}
@@ -97,10 +140,17 @@ export function PostDetailContent({ post }: PostDetailHeaderProps) {
                         className="group-hover:bg-blue-500/20 rounded-full p-2 w-9 h-9"
                     />
                 </button>
-                <button className="flex items-center gap-2 hover:text-red-500 transition group">
+                <button
+                    onClick={handleLike}
+                    className={`flex items-center gap-2 transition group ${
+                        post.likedByCurrentUser ? 'text-red-500' : 'hover:text-red-500'
+                    }`}
+                >
                     <Heart
                         size={20}
-                        className="group-hover:bg-red-500/20 rounded-full p-2 w-9 h-9"
+                        className={`group-hover:bg-red-500/20 rounded-full p-2 w-9 h-9 ${
+                            post.likedByCurrentUser ? 'fill-red-500' : ''
+                        }`}
                     />
                 </button>
                 <button className="flex items-center gap-2 hover:text-blue-400 transition group">

@@ -2,6 +2,9 @@
 
 import type { CommentDto } from '@/src/generated/api/models';
 import Link from 'next/link';
+import { Trash2 } from 'lucide-react';
+import { useDeleteComment } from '@/hooks/use-comments';
+import { useCurrentUser } from '@/hooks/queries/use-user';
 import { CustomAvatar } from '@/components/ui/custom-avatar';
 
 interface CommentItemProps {
@@ -9,6 +12,16 @@ interface CommentItemProps {
 }
 
 export function CommentItem({ comment }: CommentItemProps) {
+    const { data: currentUser } = useCurrentUser();
+    const deleteCommentMutation = useDeleteComment();
+    const isAuthor = !!currentUser?.username && currentUser.username === comment.author?.username;
+
+    const handleDelete = () => {
+        if (!comment.id || !comment.postId) return;
+        if (!window.confirm('Delete this comment?')) return;
+        deleteCommentMutation.mutate({ commentId: comment.id, postId: comment.postId });
+    };
+
     return (
         <article className="p-4 border-b border-gray-700 hover:bg-gray-900/30 transition">
             <div className="flex gap-3">
@@ -41,6 +54,17 @@ export function CommentItem({ comment }: CommentItemProps) {
                                         })}
                                     </span>
                                 </>
+                            )}
+                            {isAuthor && (
+                                <button
+                                    onClick={handleDelete}
+                                    disabled={deleteCommentMutation.isPending}
+                                    className="ml-auto inline-flex items-center gap-1 text-red-500 hover:text-red-400 transition disabled:opacity-50"
+                                    aria-label="Delete comment"
+                                >
+                                    <Trash2 size={14} />
+                                    Delete
+                                </button>
                             )}
                         </div>
                     )}

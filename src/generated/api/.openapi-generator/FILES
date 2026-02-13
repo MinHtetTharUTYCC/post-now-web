@@ -33,7 +33,6 @@ docs/PostCreateDto.md
 docs/PostDto.md
 docs/PostUpdateDto.md
 docs/SortObject.md
-docs/UploadProfileImageRequest.md
 docs/UserControllerApi.md
 docs/UserCreateDto.md
 docs/UserDto.md
@@ -59,7 +58,6 @@ models/PostCreateDto.ts
 models/PostDto.ts
 models/PostUpdateDto.ts
 models/SortObject.ts
-models/UploadProfileImageRequest.ts
 models/UserCreateDto.ts
 models/UserDto.ts
 models/UserSummaryDto.ts

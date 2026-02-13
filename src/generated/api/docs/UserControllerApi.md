@@ -11,7 +11,7 @@ All URIs are relative to *http://localhost:8090*
 | [**getUserByUsername**](UserControllerApi.md#getuserbyusername) | **GET** /api/users/{username} |  |
 | [**searchUsers**](UserControllerApi.md#searchusers) | **GET** /api/users/search |  |
 | [**updateCurrentUser**](UserControllerApi.md#updatecurrentuser) | **PUT** /api/users/me |  |
-| [**uploadProfileImage**](UserControllerApi.md#uploadprofileimageoperation) | **POST** /api/users/me/profile-image |  |
+| [**uploadProfileImage**](UserControllerApi.md#uploadprofileimage) | **POST** /api/users/me/profile-image |  |
 
 
 
@@ -451,7 +451,7 @@ No authorization required
 
 ## uploadProfileImage
 
-> object uploadProfileImage(uploadProfileImageRequest)
+> object uploadProfileImage(image)
 
 
 
@@ -462,16 +462,16 @@ import {
   Configuration,
   UserControllerApi,
 } from '';
-import type { UploadProfileImageOperationRequest } from '';
+import type { UploadProfileImageRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
   const api = new UserControllerApi();
 
   const body = {
-    // UploadProfileImageRequest (optional)
-    uploadProfileImageRequest: ...,
-  } satisfies UploadProfileImageOperationRequest;
+    // Blob
+    image: BINARY_DATA_HERE,
+  } satisfies UploadProfileImageRequest;
 
   try {
     const data = await api.uploadProfileImage(body);
@@ -490,7 +490,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **uploadProfileImageRequest** | [UploadProfileImageRequest](UploadProfileImageRequest.md) |  | [Optional] |
+| **image** | `Blob` |  | [Defaults to `undefined`] |
 
 ### Return type
 
@@ -502,7 +502,7 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: `application/json`
+- **Content-Type**: `multipart/form-data`
 - **Accept**: `*/*`
 
 

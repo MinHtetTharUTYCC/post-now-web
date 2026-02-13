@@ -5,6 +5,8 @@ import { Heart, MessageCircle, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CustomAvatar } from '@/components/ui/custom-avatar';
+import { useToggleLike } from '@/hooks/use-post-mutations';
+import { useAuthStore } from '@/hooks/stores/use-auth-store';
 
 interface PostCardProps {
     post: PostDto;
@@ -12,11 +14,25 @@ interface PostCardProps {
 
 export function PostCard({ post }: PostCardProps) {
     const router = useRouter();
+    const toggleLikeMutation = useToggleLike();
+    const isAuthenticated = useAuthStore((s: any) => s.isAuthenticated());
+    const postHref = post.id ? `/posts/${post.id}` : '';
+
+    const handleLike = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!isAuthenticated) return;
+        toggleLikeMutation.mutate({
+            postId: post.id!,
+            liked: post.likedByCurrentUser ?? false,
+        });
+    };
+
     return (
         <article
             className="border border-gray-700 p-6 hover:bg-gray-900/50 transition cursor-pointer"
-            onClick={() => router.push(`/posts/${post.id}`)}
-            onMouseEnter={() => router.prefetch(`/posts/${post.id}`)}
+            onClick={() => postHref && router.push(postHref)}
+            onPointerEnter={() => postHref && router.prefetch(postHref)}
+            onFocus={() => postHref && router.prefetch(postHref)}
         >
             <div className="flex items-start justify-between">
                 <div className="flex gap-3 flex-1">
@@ -43,7 +59,7 @@ export function PostCard({ post }: PostCardProps) {
                 </div>
             </div>
 
-            <Link href={`/posts/${post.id}`} className="block mt-3">
+            <Link href={postHref} prefetch className="block mt-3">
                 <h2 className="text-xl font-bold hover:text-gray-300 transition">{post.title}</h2>
                 <p className="mt-2 text-gray-300 line-clamp-3">{post.content}</p>
             </Link>
@@ -67,10 +83,17 @@ export function PostCard({ post }: PostCardProps) {
                     />
                     <span>{post.commentsCount || 0}</span>
                 </button>
-                <button className="flex items-center gap-2 hover:text-red-500 transition group">
+                <button
+                    onClick={handleLike}
+                    className={`flex items-center gap-2 transition group ${
+                        post.likedByCurrentUser ? 'text-red-500' : 'hover:text-red-500'
+                    }`}
+                >
                     <Heart
                         size={16}
-                        className="group-hover:bg-red-500/20 rounded-full p-2 w-8 h-8"
+                        className={`group-hover:bg-red-500/20 rounded-full p-2 w-8 h-8 ${
+                            post.likedByCurrentUser ? 'fill-red-500' : ''
+                        }`}
                     />
                     <span>{post.likesCount || 0}</span>
                 </button>

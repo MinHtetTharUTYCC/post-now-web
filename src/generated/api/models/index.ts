@@ -19,7 +19,6 @@ export * from './PostCreateDto';
 export * from './PostDto';
 export * from './PostUpdateDto';
 export * from './SortObject';
-export * from './UploadProfileImageRequest';
 export * from './UserCreateDto';
 export * from './UserDto';
 export * from './UserSummaryDto';

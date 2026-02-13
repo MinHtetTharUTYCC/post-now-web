@@ -4,9 +4,16 @@ import { CustomAvatar } from '@/components/ui/custom-avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useFollowUser, useUnfollowUser } from '@/hooks/mutations/use-follow';
-import { useFollowStats, useUserProfile, useCurrentUser } from '@/hooks/queries/use-user';
-import { CalendarDays, Settings } from 'lucide-react';
-import { useState } from 'react';
+import {
+    useFollowStats,
+    useUserProfile,
+    useCurrentUser,
+    useUploadProfileImage,
+    useDeleteProfileImage,
+} from '@/hooks/queries/use-user';
+import { CalendarDays, Settings, Camera, Trash2 } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { EditProfileDialog } from './edit-profile-dialog';
 import { FollowersDialog } from './followers-dialog';
 import { FollowingDialog } from './following-dialog';
@@ -24,6 +31,9 @@ export function ProfileHeader({ username }: ProfileHeaderProps) {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [followersDialogOpen, setFollowersDialogOpen] = useState(false);
     const [followingDialogOpen, setFollowingDialogOpen] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const uploadImageMutation = useUploadProfileImage();
+    const deleteImageMutation = useDeleteProfileImage();
 
     if (isLoading || !user) {
         return (
@@ -57,17 +67,89 @@ export function ProfileHeader({ username }: ProfileHeaderProps) {
         return user.username?.[0]?.toUpperCase() || 'U';
     };
 
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please select an image file');
+            return;
+        }
+
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Image size should be less than 5MB');
+            return;
+        }
+
+        try {
+            await uploadImageMutation.mutateAsync(file);
+            toast.success('Profile image updated successfully!');
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        } catch (error) {
+            toast.error('Failed to upload image');
+            console.error(error);
+        }
+    };
+
+    const handleDeleteImage = async () => {
+        try {
+            await deleteImageMutation.mutateAsync();
+            toast.success('Profile image removed successfully!');
+        } catch (error) {
+            toast.error('Failed to remove image');
+            console.error(error);
+        }
+    };
+
     return (
         <>
             <div className="border-b border-gray-700 p-6 bg-black">
                 <div className="flex items-start justify-between">
                     <div className="flex gap-4">
-                        <CustomAvatar
-                            src={user.profileImage}
-                            alt={user.username}
-                            fallback={getInitials()}
-                            className="h-24 w-24"
-                        />
+                        <div className="relative">
+                            <CustomAvatar
+                                src={user.profileImage}
+                                alt={user.username}
+                                fallback={getInitials()}
+                                className="h-24 w-24"
+                            />
+                            {isOwnProfile && (
+                                <>
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={
+                                            uploadImageMutation.isPending ||
+                                            deleteImageMutation.isPending
+                                        }
+                                        className="absolute bottom-0 right-0 bg-white text-black p-2 rounded-full hover:bg-gray-200 transition disabled:opacity-50"
+                                        title="Upload profile image"
+                                    >
+                                        <Camera className="h-4 w-4" />
+                                    </button>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={handleImageUpload}
+                                    />
+                                    {user.profileImage && (
+                                        <button
+                                            onClick={handleDeleteImage}
+                                            disabled={deleteImageMutation.isPending}
+                                            className="absolute top-0 right-0 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition disabled:opacity-50"
+                                            title="Delete profile image"
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                        </button>
+                                    )}
+                                </>
+                            )}
+                        </div>
                         <div className="flex-1">
                             <div className="flex items-center gap-3">
                                 <h1 className="text-2xl font-bold">
@@ -122,7 +204,7 @@ export function ProfileHeader({ username }: ProfileHeaderProps) {
                                 onClick={() => setEditDialogOpen(true)}
                                 className="px-4 py-2 border border-gray-700 hover:bg-gray-800 font-semibold transition flex items-center gap-2"
                             >
-                                <Settings className="h-4 w-4" />
+                                <Settings className="h-4 w-4 shrink-0" />
                                 Edit Profile
                             </button>
                         ) : (

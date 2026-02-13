@@ -7,6 +7,7 @@ import { useAuthStore } from '@/hooks/stores/use-auth-store';
 import { useLogout } from '@/hooks/mutations/use-auth';
 import { useUnreadCount } from '@/hooks/queries/use-notifications';
 import { useCurrentUser } from '@/hooks/queries/use-user';
+import { CustomAvatar } from '@/components/ui/custom-avatar';
 import { useState } from 'react';
 
 const menuItems = [
@@ -31,6 +32,13 @@ export function Sidebar() {
     const handleLogout = () => {
         logoutMutation.mutate();
         setIsMobileMenuOpen(false);
+    };
+
+    const getInitials = () => {
+        if (currentUser?.firstName && currentUser?.lastName) {
+            return `${currentUser.firstName[0]}${currentUser.lastName[0]}`.toUpperCase();
+        }
+        return currentUser?.username?.[0]?.toUpperCase() || 'U';
     };
 
     return (
@@ -110,12 +118,18 @@ export function Sidebar() {
                             <button
                                 onClick={handleLogout}
                                 disabled={logoutMutation.isPending}
-                                className="flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-gray-900 transition w-full text-left disabled:opacity-50"
+                                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-900 transition w-full text-left disabled:opacity-50"
                             >
-                                <LogOut size={24} />
-                                <span className="text-lg">
-                                    {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
+                                <CustomAvatar
+                                    src={currentUser?.profileImage}
+                                    alt={currentUser?.username || 'User'}
+                                    fallback={getInitials()}
+                                    size="sm"
+                                />
+                                <span className="text-base flex-1 truncate">
+                                    @{currentUser?.username || 'User'}
                                 </span>
+                                <LogOut size={20} className="shrink-0" />
                             </button>
                         ) : (
                             <>

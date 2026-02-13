@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { NotificationControllerApi, PageNotificationDto } from '@/src/generated/api';
 import { getApiConfig } from '@/lib/api-client';
 
@@ -15,6 +15,29 @@ export function useNotifications(page = 0, size = 20) {
                     sort: ['createdAt,desc'],
                 },
             }),
+    });
+}
+
+export function useInfiniteNotifications(size = 20) {
+    return useInfiniteQuery<PageNotificationDto>({
+        queryKey: ['notifications', 'infinite'],
+        queryFn: ({ pageParam = 0 }) =>
+            notificationApi.getAllNotifications({
+                pageable: {
+                    page: pageParam as number,
+                    size,
+                    sort: ['createdAt,desc'],
+                },
+            }),
+        getNextPageParam: (lastPage) => {
+            if (lastPage.last === true) return undefined;
+            if (lastPage.number !== undefined && lastPage.totalPages !== undefined) {
+                if (lastPage.number + 1 >= lastPage.totalPages) return undefined;
+                return lastPage.number + 1;
+            }
+            return undefined;
+        },
+        initialPageParam: 0,
     });
 }
 

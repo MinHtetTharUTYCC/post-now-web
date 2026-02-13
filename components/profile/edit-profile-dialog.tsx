@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -13,14 +12,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { CustomAvatar } from '@/components/ui/custom-avatar';
-import {
-    useUpdateProfile,
-    useUploadProfileImage,
-    useDeleteProfileImage,
-} from '@/hooks/queries/use-user';
+import { useUpdateProfile } from '@/hooks/queries/use-user';
 import type { UserDto } from '@/src/generated/api';
-import { Camera, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface EditProfileDialogProps {
@@ -38,8 +31,6 @@ export function EditProfileDialog({ open, onOpenChange, user }: EditProfileDialo
     });
 
     const updateProfileMutation = useUpdateProfile();
-    const uploadImageMutation = useUploadProfileImage();
-    const deleteImageMutation = useDeleteProfileImage();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,48 +42,6 @@ export function EditProfileDialog({ open, onOpenChange, user }: EditProfileDialo
             toast.error('Failed to update profile');
             console.error(error);
         }
-    };
-
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            toast.error('Please select an image file');
-            return;
-        }
-
-        // Validate file size (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            toast.error('Image size should be less than 5MB');
-            return;
-        }
-
-        try {
-            await uploadImageMutation.mutateAsync(file);
-            toast.success('Profile image updated successfully!');
-        } catch (error) {
-            toast.error('Failed to upload image');
-            console.error(error);
-        }
-    };
-
-    const handleDeleteImage = async () => {
-        try {
-            await deleteImageMutation.mutateAsync();
-            toast.success('Profile image removed successfully!');
-        } catch (error) {
-            toast.error('Failed to remove image');
-            console.error(error);
-        }
-    };
-
-    const getInitials = () => {
-        if (user.firstName && user.lastName) {
-            return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
-        }
-        return user.username?.[0]?.toUpperCase() || 'U';
     };
 
     return (
@@ -107,47 +56,6 @@ export function EditProfileDialog({ open, onOpenChange, user }: EditProfileDialo
 
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-4 py-4">
-                        {/* Profile Image Section */}
-                        <div className="flex items-center gap-4">
-                            <CustomAvatar
-                                src={user.profileImage}
-                                alt={user.username}
-                                fallback={getInitials()}
-                                className="h-20 w-20"
-                            />
-                            <div className="flex gap-2">
-                                <button
-                                    className="px-4 py-2 border border-gray-700 hover:bg-gray-800 font-semibold transition flex items-center gap-2"
-                                    type="button"
-                                    disabled={uploadImageMutation.isPending}
-                                    onClick={() =>
-                                        document.getElementById('profile-image-upload')?.click()
-                                    }
-                                >
-                                    <Camera className="mr-2 h-4 w-4" />
-                                    {uploadImageMutation.isPending ? 'Uploading...' : 'Change'}
-                                </button>
-                                <input
-                                    id="profile-image-upload"
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleImageUpload}
-                                />
-                                {user.profileImage && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        disabled={deleteImageMutation.isPending}
-                                        onClick={handleDeleteImage}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-
                         {/* First Name */}
                         <div className="space-y-2">
                             <Label htmlFor="firstName" className="text-white">

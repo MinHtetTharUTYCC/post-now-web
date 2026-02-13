@@ -1,22 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { useNotifications } from '@/hooks/queries/use-notifications';
+import { useInfiniteNotifications } from '@/hooks/queries/use-notifications';
 import { useMarkAllAsRead } from '@/hooks/mutations/use-notifications';
 import { NotificationsList } from '@/components/notifications/notifications-list';
 import { CheckCheck } from 'lucide-react';
 
 export default function NotificationsPage() {
-    const [page, setPage] = useState(0);
-    const { data, isLoading, error } = useNotifications(page, 20);
+    const {
+        data,
+        isLoading,
+        error,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useInfiniteNotifications(20);
     const markAllAsReadMutation = useMarkAllAsRead();
 
-    const notifications = data?.content || [];
-    const hasMore = !data?.last || false;
-
-    const handleLoadMore = () => {
-        setPage((prev) => prev + 1);
-    };
+    const notifications = data?.pages.flatMap((page) => page.content ?? []) ?? [];
+    const hasMore = hasNextPage || false;
 
     const handleMarkAllAsRead = () => {
         markAllAsReadMutation.mutate();
@@ -56,8 +57,8 @@ export default function NotificationsPage() {
                 notifications={notifications}
                 isLoading={isLoading}
                 hasMore={hasMore}
-                onLoadMore={handleLoadMore}
-                isLoadingMore={false}
+                onLoadMore={() => fetchNextPage()}
+                isLoadingMore={isFetchingNextPage}
             />
         </div>
     );

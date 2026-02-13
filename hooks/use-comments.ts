@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { CommentControllerApi } from '@/src/generated/api/apis';
 import { getApiConfig } from '@/lib/api-client';
 import type { CommentCreateDto, Pageable } from '@/src/generated/api/models';
@@ -50,6 +50,35 @@ export function useComments(postId: number, page: number = 0, size: number = 20)
             const response = await commentApi.getCommentsByPostId({ postId, pageable });
             return response;
         },
+        enabled: postId > 0,
+    });
+}
+
+export function useInfiniteComments(postId: number, size: number = 20) {
+    return useInfiniteQuery({
+        queryKey: ['comments', postId, 'infinite'],
+        queryFn: async ({ pageParam }) => {
+            const config = getApiConfig();
+            const commentApi = new CommentControllerApi(config);
+            const response = await commentApi.getCommentsByPostId({
+                postId,
+                pageable: {
+                    page: pageParam,
+                    size,
+                    sort: ['createdAt,desc'],
+                },
+            });
+            return response;
+        },
+        getNextPageParam: (lastPage) => {
+            if (lastPage.last === true) return undefined;
+            if (lastPage.number !== undefined && lastPage.totalPages !== undefined) {
+                if (lastPage.number + 1 >= lastPage.totalPages) return undefined;
+                return lastPage.number + 1;
+            }
+            return undefined;
+        },
+        initialPageParam: 0,
         enabled: postId > 0,
     });
 }

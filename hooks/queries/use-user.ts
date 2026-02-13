@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { getAuthenticatedApiClient } from '@/lib/api-client';
 import { useAuthStore } from '@/hooks/stores/use-auth-store';
+import { useRouter } from 'next/navigation';
 
 // Helper function for fetching user posts with flat parameters
 async function getUserPostsWithFlatParams(username: string, page: number, size: number, sort: string[]) {
@@ -174,31 +175,21 @@ export function useUploadProfileImage() {
     return useMutation({
         mutationFn: async (image: File) => {
             const client = getAuthenticatedApiClient();
-
-            // Note: Generated client has Content-Type: application/json but backend expects multipart/form-data
-            // So we manually use FormData with the correct endpoint: /api/users/me/profile-image
-            const formData = new FormData();
-            formData.append('image', image);
-
-            const token = useAuthStore.getState().token;
-            const basePath = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8090';
-
-            const response = await fetch(`${basePath}/api/users/me/profile-image`, {
-                method: 'POST',
-                headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-                body: formData,
-                // Don't set Content-Type header - browser will set it with boundary for multipart/form-data
+            // Generated client now properly handles multipart/form-data
+            const response = await client.user.uploadProfileImage({
+                image: image as unknown as Blob,
             });
-
-            if (!response.ok) {
-                const error = await response.text();
-                throw new Error(`Upload failed: ${response.status} - ${error}`);
-            }
-
-            return response.json();
+            return response as any;
         },
-        onSuccess: () => {
+        onSuccess: (updatedUser: any) => {
+            // Immediately update caches with the response data
+            if (updatedUser && updatedUser.username) {
+                queryClient.setQueryData(['currentUser'], updatedUser);
+                queryClient.setQueryData(['user', updatedUser.username], updatedUser);
+            }
+            // Also invalidate to ensure everything is in sync
             queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+            queryClient.invalidateQueries({ queryKey: ['user'], exact: false });
         },
     });
 }
@@ -210,10 +201,35 @@ export function useDeleteProfileImage() {
         mutationFn: async () => {
             const client = getAuthenticatedApiClient();
             const response = await client.user.deleteProfileImage();
-            return response;
+            return response as any;
+        },
+        onSuccess: (updatedUser: any) => {
+            // Immediately update caches with the response data
+            if (updatedUser && updatedUser.username) {
+                queryClient.setQueryData(['currentUser'], updatedUser);
+                queryClient.setQueryData(['user', updatedUser.username], updatedUser);
+            }
+            // Also invalidate to ensure everything is in sync
+            queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+            queryClient.invalidateQueries({ queryKey: ['user'], exact: false });
+        },
+    });
+}
+
+export function useDeleteCurrentUser() {
+    const queryClient = useQueryClient();
+    const removeToken = useAuthStore((state) => state.removeToken);
+    const router = useRouter();
+
+    return useMutation({
+        mutationFn: async () => {
+            const client = getAuthenticatedApiClient();
+            await client.user.deleteCurrentUser();
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+            removeToken();
+            queryClient.clear();
+            router.push('/signup');
         },
     });
 }

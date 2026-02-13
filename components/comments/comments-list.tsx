@@ -1,6 +1,6 @@
 'use client';
 
-import { useComments } from '@/hooks/use-comments';
+import { useInfiniteComments } from '@/hooks/use-comments';
 import { CommentItem } from './comment-item';
 import { CommentForm } from './comment-form';
 import Link from 'next/link';
@@ -11,8 +11,17 @@ interface CommentsListProps {
 }
 
 export function CommentsList({ postId }: CommentsListProps) {
-    const { data, isLoading, error } = useComments(postId);
+    const {
+        data,
+        isLoading,
+        error,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useInfiniteComments(postId, 20);
     const isAuthenticated = useAuthStore((state: any) => state.isAuthenticated());
+
+    const allComments = data?.pages.flatMap((page) => page.content ?? []) ?? [];
 
     return (
         <div>
@@ -46,17 +55,29 @@ export function CommentsList({ postId }: CommentsListProps) {
 
             {error && <div className="p-6 text-center text-red-500">Failed to load comments</div>}
 
-            {!isLoading && !error && data?.content && data.content.length > 0 && (
+            {!isLoading && !error && allComments.length > 0 && (
                 <div>
-                    {data.content.map((comment) => (
+                    {allComments.map((comment) => (
                         <CommentItem key={comment.id} comment={comment} />
                     ))}
                 </div>
             )}
 
-            {!isLoading && !error && (!data?.content || data.content.length === 0) && (
+            {!isLoading && !error && allComments.length === 0 && (
                 <div className="p-12 text-center text-gray-500">
                     No comments yet. Be the first to reply!
+                </div>
+            )}
+
+            {hasNextPage && (
+                <div className="p-4 text-center">
+                    <button
+                        onClick={() => fetchNextPage()}
+                        disabled={isFetchingNextPage}
+                        className="px-6 py-2 border border-gray-700 hover:bg-gray-900 transition disabled:opacity-50"
+                    >
+                        {isFetchingNextPage ? 'Loading...' : 'Load More'}
+                    </button>
                 </div>
             )}
         </div>
